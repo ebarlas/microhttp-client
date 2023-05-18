@@ -45,7 +45,6 @@ class ResponseParser {
     private int chunkSize;
     private ByteMerger chunks = new ByteMerger();
 
-    private String version;
     private int statusCode;
     private String reasonPhrase;
     private List<Header> headers = new ArrayList<>();
@@ -71,7 +70,6 @@ class ResponseParser {
     }
 
     private void parseVersion(byte[] token) {
-        version = new String(token);
         state = State.STATUS_CODE;
     }
 
