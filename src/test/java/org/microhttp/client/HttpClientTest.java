@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 public class HttpClientTest {
@@ -43,6 +44,36 @@ public class HttpClientTest {
         } finally {
             cp.release(connection);
         }
+    }
+
+    @Test
+    public void testSocketConnectTimeout() {
+        var remoteAddress = new HostPort("raw.githubusercontent.com", 443);
+        var cp = new ConnectionPool(
+                SSLSocketFactory.getDefault(),
+                null,
+                remoteAddress,
+                1,
+                5_000,
+                10_000,
+                1_000,
+                Thread::new);
+        Assertions.assertThrows(SocketTimeoutException.class, cp::borrow, "Connect timed out");
+    }
+
+    @Test
+    public void testSocketReadTimeout() {
+        var remoteAddress = new HostPort("raw.githubusercontent.com", 443);
+        var cp = new ConnectionPool(
+                SSLSocketFactory.getDefault(),
+                null,
+                remoteAddress,
+                5_000,
+                1,
+                10_000,
+                1_000,
+                Thread::new);
+        Assertions.assertThrows(SocketTimeoutException.class, cp::borrow, "Read timed out");
     }
 
 }

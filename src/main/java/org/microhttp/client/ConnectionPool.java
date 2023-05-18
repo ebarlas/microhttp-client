@@ -73,9 +73,9 @@ class ConnectionPool {
 
     private Socket newSocket() throws IOException {
         var socket = socketFactory.createSocket();
+        socket.setSoTimeout(socketTimeout);
         socket.bind(localAddress == null ? null : localAddress.toSocketAddress());
         socket.connect(remoteAddress.toSocketAddress(), connectTimeout);
-        socket.setSoTimeout(socketTimeout);
         if (socket instanceof SSLSocket ss) {
             ss.startHandshake(); // complete TLS handshake as part of init
         }
