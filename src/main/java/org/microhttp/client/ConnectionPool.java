@@ -14,6 +14,7 @@ class ConnectionPool {
     private final SocketFactory socketFactory;
     private final HostPort localAddress;
     private final HostPort remoteAddress;
+    private final int connectTimeout;
     private final int socketTimeout;
     private final int idleTimeout;
     private final int evictPollPeriod;
@@ -25,6 +26,7 @@ class ConnectionPool {
             SocketFactory socketFactory,
             HostPort localAddress,
             HostPort remoteAddress,
+            int connectTimeout,
             int socketTimeout,
             int idleTimeout,
             int evictPollPeriod,
@@ -32,6 +34,7 @@ class ConnectionPool {
         this.socketFactory = socketFactory;
         this.localAddress = localAddress;
         this.remoteAddress = remoteAddress;
+        this.connectTimeout = connectTimeout;
         this.socketTimeout = socketTimeout;
         this.idleTimeout = idleTimeout;
         this.evictPollPeriod = evictPollPeriod;
@@ -71,7 +74,8 @@ class ConnectionPool {
     private Socket newSocket() throws IOException {
         var socket = socketFactory.createSocket();
         socket.bind(localAddress == null ? null : localAddress.toSocketAddress());
-        socket.connect(remoteAddress.toSocketAddress(), socketTimeout);
+        socket.connect(remoteAddress.toSocketAddress(), connectTimeout);
+        socket.setSoTimeout(socketTimeout);
         if (socket instanceof SSLSocket ss) {
             ss.startHandshake(); // complete TLS handshake as part of init
         }
